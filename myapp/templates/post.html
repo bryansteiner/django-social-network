@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+            Comment
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span>&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Comment on this Post</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button class="btn btn-primary" name="comment">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <hr>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    {% if user.is_authenticated %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="text-left">
+                                <input class="btn btn-default" type="submit" name="upvote_post" value="&#9650;"/>
+                                <input class="btn btn-default" type="submit" name="downvote_post" value="&#9660;"/>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">{{ post.body }}</div>
+                <div class="col-md-2">
+                    {% if user.is_authenticated and post.user == user %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="text-right">
+                                <input class="btn btn-default" type="submit" name="delete_post" value="delete"/>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-sm-2">
+                    By: {{ post.user }}
+                </div>
+                <div class="col-sm-2">
+                    Likes: {{ post.votes }}
+                </div>
+                <div class="col-sm-2">
+                    Comments: {{ post.comments }}
+                </div>
+                <div class="col-sm-6 text-right">
+                    <i class="glyphicon glyphicon-time"></i>
+                    {{ post.date }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <form method="POST">
+        <label>Sort by: </label>
+        <div class="btn-group" role="group" aria-label="sort">
+            {% csrf_token %}
+            <button class="btn btn-default" name="newest">Newest</button>
+            <button class="btn btn-default" name="oldest">Oldest</button>
+            <button class="btn btn-default" name="likes">Likes</button>
+        </div>
+    </form>
+    <br>
+    {% for comment in comments %}
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-11">
+                <div class="panel panel-info">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {% if user.is_authenticated %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="text-left">
+                                            <input type="hidden" name="pk" value="{{ comment.pk }}"/>
+                                            <input class="btn btn-default" type="submit" name="upvote_comment" value="&#9650;"/>
+                                            <input class="btn btn-default" type="submit" name="downvote_comment" value="&#9660;"/>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                {{ comment.body }}
+                            </div>
+                            <div class="col-md-2">
+                                {% if user.is_authenticated and post.user == user %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="text-right">
+                                            <input type="hidden" name="pk" value="{{ comment.pk }}"/>
+                                            <input class="btn btn-default" type="submit" name="delete_comment"
+                                                   value="delete"/>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-3">
+                                By: {{ comment.user }}
+                            </div>
+                            <div class="col-sm-3">
+                                Likes: {{ comment.votes }}
+                            </div>
+                            <div class="col-sm-6 text-right">
+                                <i class="glyphicon glyphicon-time"></i>
+                                {{ comment.date }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+

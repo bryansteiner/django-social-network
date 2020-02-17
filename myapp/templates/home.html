@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+            Create Post
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span>&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Create a Post</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button class="btn btn-primary" name="post">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <hr>
+    <form method="POST">
+        <label>Sort by: </label>
+        <div class="btn-group" role="group" aria-label="sort">
+            {% csrf_token %}
+            <button class="btn btn-default" name="newest">Newest</button>
+            <button class="btn btn-default" name="oldest">Oldest</button>
+            <button class="btn btn-default" name="likes">Likes</button>
+            <button class="btn btn-default" name="comments">Comments</button>
+        </div>
+    </form>
+    <br>
+    {% for post in posts %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        {% if user.is_authenticated %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="text-left">
+                                    <input type="hidden" name="pk" value="{{ post.pk }}"/>
+                                    <input class="btn btn-default" type="submit" name="upvote_post" value="&#9650;"/>
+                                    <input class="btn btn-default" type="submit" name="downvote_post" value="&#9660;"/>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <a href="{{ post.pk }}">{{ post.body }}</a>
+                    </div>
+                    <div class="col-md-2">
+                        {% if user.is_authenticated and post.user == user %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="text-right">
+                                    <input type="hidden" name="pk" value="{{ post.pk }}"/>
+                                    <input class="btn btn-default" type="submit" name="delete_post" value="delete"/>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="row">
+                    <div class="col-sm-2">
+                        User: {{ post.user }}
+                    </div>
+                    <div class="col-sm-2">
+                        Likes: {{ post.votes }}
+                    </div>
+                    <div class="col-sm-2">
+                        Comments: {{ post.comments }}
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <i class="glyphicon glyphicon-time"></i>
+                        {{ post.date }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

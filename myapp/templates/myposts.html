@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">My Posts</div>
+        <div class="panel-body">
+            {% for post in posts %}
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {% if user.is_authenticated %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="text-left">
+                                            <input type="hidden" name="pk" value="{{ post.pk }}"/>
+                                            <input class="btn btn-default" type="submit" name="upvote_post"
+                                                   value="&#9650;"/>
+                                            <input class="btn btn-default" type="submit" name="downvote_post"
+                                                   value="&#9660;"/>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <a href="../{{ post.pk }}">{{ post.body }}</a>
+                            </div>
+                            <div class="col-md-2">
+                                {% if user.is_authenticated and post.user == user %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="text-right">
+                                            <input type="hidden" name="pk" value="{{ post.pk }}"/>
+                                            <input class="btn btn-default" type="submit" name="delete_post"
+                                                   value="delete"/>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                User: {{ post.user }}
+                            </div>
+                            <div class="col-sm-2">
+                                Likes: {{ post.votes }}
+                            </div>
+                            <div class="col-sm-2">
+                                Comments: {{ post.comments }}
+                            </div>
+                            <div class="col-sm-6 text-right">
+                                <i class="glyphicon glyphicon-time"></i>
+                                {{ post.date }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
